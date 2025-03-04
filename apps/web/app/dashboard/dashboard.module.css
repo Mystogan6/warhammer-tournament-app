@@ -1,0 +1,82 @@
+.container {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+.header {
+  background: var(--input-background);
+  border-bottom: 1px solid var(--input-border);
+  padding: 1rem 2rem;
+}
+
+.nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logoutButton {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--button-primary);
+  color: white;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.logoutButton:hover {
+  background: var(--button-primary-hover);
+}
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.description {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 1rem;
+  }
+
+  .main {
+    padding: 2rem 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .userInfo {
+    font-size: 0.875rem;
+  }
+} 
