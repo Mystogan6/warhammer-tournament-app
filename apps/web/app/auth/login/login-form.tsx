@@ -1,28 +1,38 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import styles from '../../page.module.css';
-import { useAppAuth } from '../../lib/hooks';
 import { ROUTES } from '../../lib/routes';
+import { userApi } from '../../lib/api/users';
+import { useAppNavigation } from '../../lib/hooks/use-app-navigation';
 
 interface LoginFormProps {
   onError?: (error: string) => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onError }) => {
-  const { login, isLoading } = useAppAuth();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { navigate } = useAppNavigation();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+    setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
     const username: string = formData.get('username')?.toString() || '';
     const password: string = formData.get('password')?.toString() || '';
 
-    const result = await login({ username, password });
-    if (!result.success && onError) {
-      onError('Invalid username or password');
+    const result = await userApi.login({ username, password });
+    
+    if (!result.success) {
+      onError?.(result.error || 'Invalid username or password');
+      setIsLoading(false);
+      return;
     }
+
+    // Navigate to dashboard on success
+    navigate(ROUTES.DASHBOARD);
   };
 
   return (

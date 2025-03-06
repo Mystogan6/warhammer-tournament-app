@@ -1,30 +1,48 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import styles from '../../page.module.css';
-import { useAppAuth } from '../../lib/hooks';
 import { ROUTES } from '../../lib/routes';
+import { userApi } from '../../lib/api/users';
+import { useAppNavigation } from '../../lib/hooks/use-app-navigation';
 
 interface SignupFormProps {
   onError?: (error: string) => void;
 }
 
 export const SignupForm: React.FC<SignupFormProps> = ({ onError }) => {
-  const { login, isLoading } = useAppAuth();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { navigate } = useAppNavigation();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+    setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
     const email: string = formData.get('email')?.toString() || '';
     const username: string = formData.get('username')?.toString() || '';
     const password: string = formData.get('password')?.toString() || '';
 
-    // In a real app, this would create a new user account
-    const result = await login({ username, password });
-    if (!result.success && onError) {
-      onError('Failed to create account');
+    const result = await userApi.create({ email, username, password });
+    
+    if (!result.success) {
+      onError?.(result.error || 'Failed to create account');
+      setIsLoading(false);
+      return;
     }
+
+    // After successful signup, log the user in
+    const loginResult = await userApi.login({ username, password });
+    
+    if (!loginResult.success) {
+      onError?.(loginResult.error || 'Account created but login failed');
+      setIsLoading(false);
+      return;
+    }
+
+    // Navigate to dashboard on success
+    navigate(ROUTES.DASHBOARD);
   };
 
   return (

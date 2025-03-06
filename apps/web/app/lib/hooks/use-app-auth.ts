@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useAuth } from '../auth-context';
-import { loginUser, logoutUser, User, LoginCredentials } from '../auth';
+import { userApi } from '../api/users';
 import { useAppNavigation } from './use-app-navigation';
 import { ROUTES } from '../routes';
 
@@ -16,11 +16,11 @@ export const useAppAuth = () => {
   const { user, setUser, isLoading } = useAuth();
   const { navigate } = useAppNavigation();
 
-  const login = useCallback(async (credentials: LoginCredentials) => {
+  const login = useCallback(async (credentials: { username: string; password: string }) => {
     try {
-      const result = await loginUser(credentials);
+      const result = await userApi.login(credentials);
       if (result.success && result.data) {
-        setUser(result.data);
+        setUser(result.data.user);
         navigate(ROUTES.DASHBOARD);
         return { success: true };
       }
@@ -34,7 +34,7 @@ export const useAppAuth = () => {
 
   const logout = useCallback(async () => {
     try {
-      const result = await logoutUser();
+      const result = await userApi.logout();
       if (result.success) {
         setUser(null);
         navigate(ROUTES.LOGIN);

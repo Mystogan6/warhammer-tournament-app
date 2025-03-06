@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from './types';
-import { checkAuthStatus } from './auth';
+import { userApi } from './api/users';
 
 interface AuthContextType {
   user: User | null;
@@ -12,34 +12,74 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Token refresh interval (5 minutes)
+const TOKEN_REFRESH_INTERVAL = 5 * 60 * 1000;
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
+
+  // Function to refresh the token
+  const refreshToken = async () => {
+    try {
+      const result = await userApi.refreshToken();
+      if (!result.success) {
+        // If refresh fails, clear the session
+        setUser(null);
+        userApi.removeToken();
+      }
+    } catch (error) {
+      console.error('Failed to refresh token:', error);
+      setUser(null);
+      userApi.removeToken();
+    }
+  };
+
+  // Function to check auth status and get current user
+  const checkAuth = async () => {
+    try {
+      const token = userApi.getToken();
+      if (!token) {
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
+
+      const result = await userApi.getCurrentUser();
+      if (result.success && result.data) {
+        setUser(result.data);
+        // Start token refresh interval
+        const interval = setInterval(refreshToken, TOKEN_REFRESH_INTERVAL);
+        setRefreshInterval(interval);
+      } else {
+        setUser(null);
+        userApi.removeToken();
+      }
+    } catch (error) {
+      console.error('Failed to check auth status:', error);
+      setUser(null);
+      userApi.removeToken();
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const { isAuthenticated, user } = await checkAuthStatus();
-        if (isAuthenticated && user) {
-          setUser(user);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error('Failed to check auth status:', error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
+    checkAuth();
+
+    // Cleanup function to clear the refresh interval
+    return () => {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
       }
     };
-
-    initAuth();
   }, []);
 
   const value = {
     user,
     setUser,
-    isLoading
+    isLoading,
   };
 
   return (
