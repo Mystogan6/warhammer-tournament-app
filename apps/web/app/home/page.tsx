@@ -1,10 +1,16 @@
+import React from 'react';
 import Link from 'next/link';
 import styles from './dashboard.module.css';
 import { ROUTES } from '../lib/routes';
+import { User } from '../lib/types';
+
+interface DashboardUser {
+  name: string;
+}
 
 export default function Dashboard() {
   // Hardcoded user for now
-  const user = {
+  const user: DashboardUser = {
     name: "John Doe"
   };
 

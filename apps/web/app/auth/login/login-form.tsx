@@ -5,17 +5,24 @@ import styles from '../../page.module.css';
 import { useAppAuth } from '../../lib/hooks';
 import { ROUTES } from '../../lib/routes';
 
-const LoginForm = () => {
+interface LoginFormProps {
+  onError?: (error: string) => void;
+}
+
+export const LoginForm: React.FC<LoginFormProps> = ({ onError }) => {
   const { login, isLoading } = useAppAuth();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const username = formData.get('username') as string;
-    const password = formData.get('password') as string;
+    const username: string = formData.get('username')?.toString() || '';
+    const password: string = formData.get('password')?.toString() || '';
 
-    await login({ username, password });
+    const result = await login({ username, password });
+    if (!result.success && onError) {
+      onError('Invalid username or password');
+    }
   };
 
   return (
@@ -65,6 +72,4 @@ const LoginForm = () => {
       </form>
     </div>
   );
-};
-
-export default LoginForm; 
+}; 

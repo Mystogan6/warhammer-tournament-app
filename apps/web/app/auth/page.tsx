@@ -3,15 +3,15 @@
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import styles from '../page.module.css';
-import LoginForm from './login/login-form';
-import SignupForm from './signup/signup-form';
-import SocialButtons from '../components/social-buttons';
+import { LoginForm } from './login/login-form';
+import { SignupForm } from './signup/signup-form';
+import { SocialButtons } from '../components/social-buttons';
 import { useAppAuth } from '../lib/hooks';
 
-const AuthPage = () => {
+export const AuthPage: React.FC = () => {
   const searchParams = useSearchParams();
   const mode = searchParams.get('mode') || 'login';
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string>('');
   const { isLoading } = useAppAuth();
 
   return (
@@ -33,6 +33,4 @@ const AuthPage = () => {
       </div>
     </div>
   );
-};
-
-export default AuthPage; 
+}; 

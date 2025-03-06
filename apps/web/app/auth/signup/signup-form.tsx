@@ -5,19 +5,26 @@ import styles from '../../page.module.css';
 import { useAppAuth } from '../../lib/hooks';
 import { ROUTES } from '../../lib/routes';
 
-const SignupForm = () => {
+interface SignupFormProps {
+  onError?: (error: string) => void;
+}
+
+export const SignupForm: React.FC<SignupFormProps> = ({ onError }) => {
   const { login, isLoading } = useAppAuth();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const username = formData.get('username') as string;
-    const password = formData.get('password') as string;
+    const email: string = formData.get('email')?.toString() || '';
+    const username: string = formData.get('username')?.toString() || '';
+    const password: string = formData.get('password')?.toString() || '';
 
     // In a real app, this would create a new user account
-    await login({ username, password });
+    const result = await login({ username, password });
+    if (!result.success && onError) {
+      onError('Failed to create account');
+    }
   };
 
   return (
@@ -81,6 +88,4 @@ const SignupForm = () => {
       </form>
     </div>
   );
-};
-
-export default SignupForm; 
+}; 

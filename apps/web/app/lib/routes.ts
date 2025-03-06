@@ -6,14 +6,23 @@ interface RouteConfig {
   isAuthPage?: boolean;
 }
 
-export const ROUTES = {
+interface Routes {
+  readonly HOME: '/';
+  readonly AUTH: '/auth';
+  readonly LOGIN: '/auth/login';
+  readonly SIGNUP: '/auth/signup';
+  readonly DASHBOARD: '/dashboard';
+  readonly ABOUT: '/about';
+}
+
+export const ROUTES: Routes = {
   HOME: '/',
   AUTH: '/auth',
   LOGIN: '/auth/login',
   SIGNUP: '/auth/signup',
   DASHBOARD: '/dashboard',
   ABOUT: '/about',
-} as const;
+};
 
 export type AppRoute = typeof ROUTES[keyof typeof ROUTES];
 
@@ -58,7 +67,7 @@ export const ROUTE_CONFIG: Record<AppRoute, RouteConfig> = {
     description: 'Learn more about Warhammer App',
     requireAuth: false,
   },
-} as const;
+};
 
 // Helper functions for route handling
 export const isAuthRoute = (path: string): boolean => {

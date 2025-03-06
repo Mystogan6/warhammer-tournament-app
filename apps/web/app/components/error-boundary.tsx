@@ -12,7 +12,12 @@ interface State {
   error: Error | null;
 }
 
-const ErrorFallback = ({ error, resetError }: { error: Error; resetError: () => void }) => {
+interface ErrorFallbackProps {
+  error: Error;
+  resetError: () => void;
+}
+
+const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetError }) => {
   return (
     <div className={styles.errorBoundary}>
       <h2>Something went wrong</h2>
@@ -40,18 +45,18 @@ class ErrorBoundary extends Component<Props, State> {
     };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     console.error('Uncaught error:', error, errorInfo);
   }
 
-  public resetError = () => {
+  public resetError = (): void => {
     this.setState({
       hasError: false,
       error: null
     });
   };
 
-  public render() {
+  public render(): ReactNode {
     if (this.state.hasError && this.state.error) {
       return (
         <ErrorFallback 

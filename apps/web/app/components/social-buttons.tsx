@@ -11,10 +11,10 @@ interface SocialButtonsProps {
   isLoading?: boolean;
 }
 
-const SocialButtons = ({ onError, isLoading = false }: SocialButtonsProps) => {
+export const SocialButtons: React.FC<SocialButtonsProps> = ({ onError, isLoading = false }) => {
   const { login } = useAppAuth();
 
-  const handleSocialLogin = async (provider: SocialProvider) => {
+  const handleSocialLogin = async (provider: SocialProvider): Promise<void> => {
     // In a real app, this would redirect to the OAuth provider
     const result = await login({ username: 'demo_user', password: 'demo' });
     if (!result.success && onError) {
@@ -53,6 +53,4 @@ const SocialButtons = ({ onError, isLoading = false }: SocialButtonsProps) => {
       </button>
     </div>
   );
-};
-
-export default SocialButtons; 
+}; 

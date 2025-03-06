@@ -4,16 +4,21 @@ import { useState, useRef, useEffect } from 'react';
 import styles from '../page.module.css';
 import { useAppAuth } from '../lib/hooks';
 
-const LogoutButton = () => {
+interface LogoutButtonProps {
+  className?: string;
+}
+
+export const LogoutButton: React.FC<LogoutButtonProps> = ({ className }) => {
   const { logout } = useAppAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [showConfirm, setShowConfirm] = useState<boolean>(false);
   const confirmRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (confirmRef.current && !confirmRef.current.contains(event.target as Node)) {
+      const target: Element | null = event.target instanceof Element ? event.target : null;
+      if (confirmRef.current && target && !confirmRef.current.contains(target)) {
         setShowConfirm(false);
         setError(null);
       }
@@ -25,22 +30,22 @@ const LogoutButton = () => {
     }
   }, [showConfirm]);
 
-  const handleLogoutClick = () => {
+  const handleLogoutClick = (): void => {
     setShowConfirm(true);
   };
 
-  const handleCancel = () => {
+  const handleCancel = (): void => {
     setShowConfirm(false);
     setError(null);
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = async (): Promise<void> => {
     setIsLoading(true);
     setError(null);
 
     const result = await logout();
     if (!result.success) {
-      setError(result.error || 'Failed to logout');
+      setError('Failed to logout');
       setIsLoading(false);
     }
   };
@@ -73,11 +78,9 @@ const LogoutButton = () => {
   return (
     <button
       onClick={handleLogoutClick}
-      className={styles.logoutButton}
+      className={`${styles.logoutButton} ${className || ''}`}
     >
       Logout
     </button>
   );
-};
-
-export default LogoutButton; 
+}; 
